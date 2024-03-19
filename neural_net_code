@@ -1,0 +1,121 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+class NeuralNetwork:
+    def __init__(self, weight_adjustment_rate):
+        print("*** initializing weights and bias from a random starting point ***")
+        self.the_model_weight = np.array([np.random.randn(), np.random.randn()])
+        self.the_model_bias_variable = np.random.randn()
+        self.learning_rate = weight_adjustment_rate
+
+    @staticmethod
+    def apply_the_sigmoid_activation_function(x):
+        return 1 / (1 + np.exp(-x))
+
+    def get_the_sigmoid_derivative(self, x):
+        return self.apply_the_sigmoid_activation_function(x) * (1 - self.apply_the_sigmoid_activation_function(x))
+
+    def predict_the_numeric_target(self, a_sample_training_vector):
+        # print("predicting input vector using weights and bias")
+        layer_1 = np.dot(a_sample_training_vector, self.the_models_weights) + self.the_model_bias_variable
+        layer_2 = self.apply_the_sigmoid_activation_function(layer_1)
+        the_numeric_prediction = layer_2
+        return the_numeric_prediction
+
+    def get_derivatives_gradients_for_model_training(self, a_sample_training_vector, target):
+        # print("get derivative of prediction error then apply chain rule backpropagation to return derivative\n
+        # to define direction of learning rate that will be applied")
+        layer_1 = np.dot(a_sample_training_vector, self.the_model_weight) + self.the_model_bias_variable
+        layer_2 = self.apply_the_sigmoid_activation_function(layer_1)
+        prediction = layer_2
+
+        derror_dprediction = 2 * (prediction - target)
+        dprediction_dlayer1 = self.get_the_sigmoid_derivative(layer_1)
+        dlayer1_dbias = 1
+        dlayer1_dweights = (0 * self.the_model_weight) + (1 * a_sample_training_vector)
+
+        derror_dbias = (
+                derror_dprediction * dprediction_dlayer1 * dlayer1_dbias
+        )
+        derror_dweights = (
+                derror_dprediction * dprediction_dlayer1 * dlayer1_dweights
+        )
+
+        return derror_dbias, derror_dweights
+
+    def _update_parameters(self, derror_dbias, derror_dweights):
+        self.the_model_bias_variable = self.the_model_bias_variable - (derror_dbias * self.learning_rate)
+        self.the_models_weights = self.the_model_weight - (
+                derror_dweights * self.learning_rate
+        )
+        return
+
+    def train(self, the_training_input_vectors, the_training_targets, training_iterations):
+        print("*** beginning training function ***")
+        cumulative_errors = []
+        for current_iteration in range(training_iterations):
+            # Pick am input vector data sample at random
+            random_data_index = np.random.randint(len(the_training_input_vectors))
+            sample_training_vector_data = the_training_input_vectors[random_data_index]
+            sample_training_target = the_training_targets[random_data_index]
+
+            # Compute the derivative gradients for direction to update the weights
+            derror_dbias, derror_dweights = self.get_derivatives_gradients_for_model_training(
+                sample_training_vector_data, sample_training_target
+            )
+
+            self._update_parameters(derror_dbias, derror_dweights)
+            print(f"Iteration {current_iteration} modulus {current_iteration % 100} input vector : "
+                  f"{sample_training_vector_data}  target : {sample_training_target} Updated weights :"
+                  f" {self.the_models_weights} Updated bias : {self.the_model_bias_variable}")
+
+            # Measure the cumulative error for all the instances
+            if current_iteration % 100 == 0:
+                cumulative_error = 0
+                # Loop through all the instances to measure the error
+                for training_data_index in range(len(the_training_input_vectors)):
+                    training_sample_data_point = the_training_input_vectors[training_data_index]
+                    sample_training_target = the_training_targets[training_data_index]
+
+                    model_prediction = self.predict_the_numeric_target(training_sample_data_point)
+                    error = np.square(model_prediction - sample_training_target)
+
+                    cumulative_error = cumulative_error + error
+                    print(f"data instance index {training_data_index} datapoint {training_sample_data_point} target "
+                          f"{sample_training_target} prediction {model_prediction} error {error} "
+                          f"cumulative error {cumulative_error}")
+                cumulative_errors.append(cumulative_error)
+        return cumulative_errors
+
+
+#  Define input data
+print("*** loading training data ***")
+the_training_data = np.array([
+    [3, 1.5],
+    [2, 1],
+    [4, 1.5],
+    [3, 4],
+    [3.5, 0.5],
+    [2, 0.5],
+    [5.5, 1],
+    [1, 1],
+])
+
+training_targets = np.array([0, 1, 0, 1, 0, 1, 1, 0])
+
+# Traditional default learning rate values are 0.1, 0.01, and 0.001.
+print("*** instantiating neural layer ***")
+learning_rate = 0.1
+
+neural_network = NeuralNetwork(weight_adjustment_rate=learning_rate)
+
+print("*** Training neural layer ***")
+the_training_error_list = neural_network.train(the_training_data, training_targets, training_iterations=1000)
+
+print("*** plotting data ***")
+print(f"training error : {the_training_error_list}")
+plt.plot(the_training_error_list)
+plt.xlabel("Iterations")
+plt.ylabel("Error for all training instances")
+plt.savefig("cumulative_error.png")
