@@ -1,0 +1,40 @@
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+# Sample data
+corpus = [
+    'This is the first document.',
+    'This document is the second document.',
+    'And this is the third one.',
+    'Is this the first document?',
+]
+
+print("\n************* sklearn vectorizer *************")
+# Create an instance of TfidfVectorizer so that we can use this class and methods
+the_text_feature_vectorizer = TfidfVectorizer()
+# Learn the vocabulary and return document-term matrix.
+# the text meaning as it was used is captured into a float value which is then mapped into the 2 digit integer matrix
+the_document_term_matrix = the_text_feature_vectorizer.fit_transform(corpus)
+print(the_document_term_matrix)
+# Each word found by the analyzer during the 'fit' or transformation is assigned a unique float value for the
+# contextual meaning.  This contextual meaning is then mapped by the integer in the matrix
+# the first integer of the matrix is the sentence's index and the second integer is the word's index within
+# list of words that were fit or transformed.
+print("******* showing terms that were transformed and mapped with a float value assignment)")
+# so here is the list of words that were transformed or fit
+print(the_text_feature_vectorizer.get_feature_names_out())
+print("\n******* these terms are the column header for the array *******")
+# Show floats of transformed terms in an array format
+the_array = the_document_term_matrix.toarray()
+print(the_array)
+
+# Presentation of data with pandas
+print("\n**********  pandas ************")
+#
+pd.set_option('display.max_columns', None)
+# The transformed words list is also the column header list used below in the pandas dataframe
+the_array_columns = the_text_feature_vectorizer.get_feature_names_out()
+# convert numpy array to dataframe
+dataframe = pd.DataFrame(the_array, columns=the_array_columns)
+print("presenting the transformed terms nicely with a Pandas DataFrame: ")
+print(dataframe)
