@@ -9,6 +9,6 @@ receptors, where signals are transmitted and regulated. Similarly, the dot produ
 complex processes of receptor upregulation and downregulation that occur in biological systems.
 
 As someone who grew up imagining science fiction concepts like AI as mere fantasy, I'm amazed to see this
-technology not only becoming a reality but also improving at an exponential rate.  It's obviously going to get better 
+technology not only becoming a reality but also improving at an exponential rate in the year of 2025.  It's obviously going to get better 
 and outperform us everywhere. 
 
